@@ -20,9 +20,11 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <thread> // std::this_thread::sleep_for
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
@@ -77,22 +79,29 @@ int main(int argc, char **argv) {
     // Construct the stream, transferring ownership of the socket
     //stream<tcp_stream> ws(std::move(sock));
 
-    // Send the message
-    ws.write(net::buffer(std::string(text)));
+    for(int i=0; i<10; i++){
+      std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    // This buffer will hold the incoming message
-    beast::flat_buffer buffer;
+      // Send the message
+      std::string msg = std::string(text) + "" + std::to_string(i);
+      ws.write(net::buffer(msg));
 
-    // Read a message into our buffer
-    ws.read(buffer);
+      // This buffer will hold the incoming message
+      beast::flat_buffer buffer;
+
+      // Read a message into our buffer
+      ws.read(buffer);
+
+      // The make_printable() function helps print a ConstBufferSequence
+      std::cout << beast::make_printable(buffer.data()) << std::endl;
+    }
+
 
     // Close the WebSocket connection
     ws.close(websocket::close_code::normal);
 
     // If we get here then the connection is closed gracefully
 
-    // The make_printable() function helps print a ConstBufferSequence
-    std::cout << beast::make_printable(buffer.data()) << std::endl;
   } catch (std::exception const &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return EXIT_FAILURE;
