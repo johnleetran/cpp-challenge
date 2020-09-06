@@ -1,0 +1,3 @@
+[submodule "p99-language-translate/aws-sdk-cpp"]
+	path = p99-language-translate/aws-sdk-cpp
+	url = https://github.com/aws/aws-sdk-cpp.git
